@@ -1,1 +1,0 @@
-﻿SENSOR_NAME = 'LUX'

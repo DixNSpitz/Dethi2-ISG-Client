@@ -1,4 +1,4 @@
-﻿from context import sensors
+﻿import sensors
 
 
 def do_test():
