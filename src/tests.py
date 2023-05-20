@@ -19,7 +19,7 @@ def test_light_sense():
         sense_light = lux.LightSensor(Pin(14), Pin(32))
         for i in range(5):
             value = sense_light.read()
-            print( 'Light level: [{0:>7.1f}] lx'.format(value) )
+            print('Light level: [{0:>7.1f}] lx'.format(value) )
             time.sleep(0.5)
         return True
 
