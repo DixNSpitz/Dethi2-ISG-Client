@@ -1,6 +1,8 @@
 from sensors.light import light
 from sensors.humidity import humidity
 from sensors.touch import touch
+from display.leds import neostick
+
 from machine import Pin
 import time
 
@@ -9,6 +11,7 @@ def test():
     test_generic('Light Sense', test_sense_light)
     test_generic('Humidity Sense', test_sense_humidity)
     test_generic('Touch Sense', test_sense_touch)
+    test_generic('LED Display', test_display_neo)
 
 
 def test_generic(name, test_func):
@@ -59,6 +62,21 @@ def test_sense_touch():
                 print('Long Touch')
 
             time.sleep(0.1)
+        return True
+
+    except:
+        return False
+
+
+def test_display_neo():
+    try:
+        neo = neostick.NeoStick(Pin(13))
+        i = 0
+        while i < 5:
+            neo.rainbow_cycle(5)
+            i += 1
+
+        neo.clear()
         return True
 
     except:
