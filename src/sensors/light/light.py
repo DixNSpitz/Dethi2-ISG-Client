@@ -1,9 +1,10 @@
 import machine
 import utime
 
-class LightSensor:
-    def __init__(self, scl_pin, sda_pin, i2c_bus_idx=0):
-        self.i2c = machine.I2C(i2c_bus_idx, freq=400000, scl=scl_pin, sda=sda_pin)
+
+class SenseLight:
+    def __init__(self, i2c_scl_pin, i2c_sda_pin, i2c_bus_idx=0):
+        self.i2c = machine.I2C(i2c_bus_idx, freq=400000, scl=i2c_scl_pin, sda=i2c_sda_pin)
         self.addr = 0x23
 
         # power on the BH1750
