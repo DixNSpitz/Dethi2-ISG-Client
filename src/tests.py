@@ -19,8 +19,10 @@ for byte in bble.config('mac')[1]:
 print('BLE-Address is: ', ble_mac)
 while not tp_ble.connected:
     tp_ble_indicator.refresh_emit()
-    time.sleep(100)
+    time.sleep_ms(100)
 
+time.sleep(3)
+tp_ble.set_light_value(10, True, True)
 
 def test():
     test_generic('Light Sense', test_sense_light)
@@ -39,7 +41,7 @@ def game_guess_waterlevel():
         value = sense_touch.read()
         if counter == 9:
                   counter = 0
-                  neo.clear() 
+                  neo.clear()
         if value == touch.SenseTouch.SenseTouchValueEnum.SHORT and counter == 8:
                   counter = counter +1
         if value == touch.SenseTouch.SenseTouchValueEnum.SHORT and counter <8:
