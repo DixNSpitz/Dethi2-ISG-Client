@@ -12,7 +12,25 @@ def test():
     test_generic('Humidity Sense', test_sense_humidity)
     test_generic('Touch Sense', test_sense_touch)
     test_generic('LED Display', test_display_neo)
+    game_guess_waterlevel()
 
+
+def game_guess_waterlevel():
+    sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
+    neo = neostick.NeoStick(Pin(13))
+    neo.clear()
+    counter = 0
+    for i in range(150):
+        value = sense_touch.read()
+        if counter == 9:
+                  counter = 0
+                  neo.clear() 
+        if value == touch.SenseTouch.SenseTouchValueEnum.SHORT and counter == 8:
+                  counter = counter +1
+        if value == touch.SenseTouch.SenseTouchValueEnum.SHORT and counter <8:
+                  neo.set_rgbw(counter,(0,255,255,0))
+                  counter = counter +1
+        time.sleep(0.1)
 
 def test_generic(name, test_func):
     print('Testing', name, '..')
