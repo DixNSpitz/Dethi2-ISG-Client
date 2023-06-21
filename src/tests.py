@@ -1,10 +1,25 @@
 from sensors.light import light
 from sensors.humidity import humidity
 from sensors.touch import touch
-from display.leds import neostick
+from display.leds import neostick, neo_onboard
+from comm.ble import ble_demo
 
 from machine import Pin
 import time
+import bluetooth
+
+bble = bluetooth.BLE()
+tp_ble_indicator = neo_onboard.NeoBlue()
+tp_ble = ble_demo.BleTechProbe(bble)
+
+ble_mac = ''
+for byte in bble.config('mac')[1]:
+    ble_mac += hex(byte).replace('0x','').upper() + ':'
+
+print('BLE-Address is: ', ble_mac)
+while not tp_ble.connected:
+    tp_ble_indicator.refresh_emit()
+    time.sleep(100)
 
 
 def test():
