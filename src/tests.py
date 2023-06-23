@@ -31,6 +31,51 @@ def test():
     test_generic('LED Display', test_display_neo)
     game_guess_waterlevel()
 
+# Returns led level 1-8 based on thresholds
+def categorize_sensor_value(value, thresholds):
+    for i, threshold in enumerate(thresholds):
+        if value < threshold:
+            return i + 1
+    return len(thresholds) + 1
+
+def get_light_level():
+    sense_light = light.SenseLight(Pin(14), Pin(32), i2c_bus_idx=0)
+    value = sense_light.read()
+    thresholds = [100, 200, 300, 400, 500, 600, 700] # adjust these thresholds
+    return categorize_sensor_value(value, thresholds)
+
+def get_humidity_level():
+    sense_humidity = humidity.SenseHumidity(Pin(15), Pin(33), i2c_bus_idx=1)
+    value_humidity = sense_humidity.read_moisture()
+    thresholds = [10, 20, 30, 40, 50, 60, 70] # adjust these thresholds
+    return categorize_sensor_value(value_humidity, thresholds)
+
+def idle_state():
+    sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
+    neo = neostick.NeoStick(Pin(13))
+    neo.clear()
+
+    red = (255,0,0,0)
+    blue = (0,0,255,0)
+    yellow = (255,255,0,0)
+    green = (0,255,0,0)
+    colors = [blue, yellow, green]
+
+    led_counts = [get_humidity_level(), get_light_level(), 4]
+
+    touch_counter = 0
+    for i in range(150):
+        value = sense_touch.read()
+        if value == touch.SenseTouch.SenseTouchValueEnum.SHORT:
+            neo.clear()
+            if led_counts[touch_counter] > 2 and led_counts[touch_counter] < 7:
+                color = colors[touch_counter]
+            else: # if led count is 1, 2, 7, or 8
+                color = red
+            for j in range(led_counts[touch_counter]): # light up LEDs based on the current count
+                neo.set_rgbw(j, color)
+            touch_counter = (touch_counter + 1) % 3
+        time.sleep(0.1)
 
 def game_guess_waterlevel():
     sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
