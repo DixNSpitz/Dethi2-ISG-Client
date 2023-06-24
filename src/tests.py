@@ -8,31 +8,41 @@ from machine import Pin
 import time
 import bluetooth
 
-bble = bluetooth.BLE()
-tp_ble_indicator = neo_onboard.NeoBlue()
-tp_ble = ble_demo.BleTechProbe(bble)
-
-ble_mac = ''
-for byte in bble.config('mac')[1]:
-    ble_mac += hex(byte).replace('0x','').upper() + ':'
-
-print('BLE-Address is: ', ble_mac)
-while not tp_ble.connected:
-    tp_ble_indicator.refresh_emit()
-    time.sleep_ms(100)
-
-time.sleep(3)
-tp_ble.set_light_value(10, True, True)
 
 def test():
+    print('Starting Tests...')
     test_generic('Light Sense', test_sense_light)
     test_generic('Humidity Sense', test_sense_humidity)
     test_generic('Touch Sense', test_sense_touch)
     test_generic('LED Display', test_display_neo)
-    game_guess_waterlevel()
+    test_generic('BLE-Comm', test_ble_comm)
+    test_generic('Game Guess Waterlevel', test_game_guess_waterlevel)
+    print('Ending Tests')
 
 
-def game_guess_waterlevel():
+def test_generic(name, test_func):
+    print('Testing', name, '..')
+    success = test_func()
+    if success:
+        print(name, 'Test Done')
+    else:
+        print(name, 'Test Failed!')
+
+
+def test_ble_comm():
+    tp_ble_indicator = neo_onboard.NeoBlue()
+    tp_ble = ble_demo.BleTechProbe(bluetooth.BLE())
+
+    print('BLE-Address is: ', tp_ble.get_mac_address())
+    while not tp_ble.connected:
+        tp_ble_indicator.refresh_emit()
+        time.sleep_ms(100)
+
+    time.sleep(3)
+    tp_ble.set_light_value(10, True, True)
+
+
+def test_game_guess_waterlevel():
     sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
     neo = neostick.NeoStick(Pin(13))
     neo.clear()
@@ -48,14 +58,6 @@ def game_guess_waterlevel():
                   neo.set_rgbw(counter,(0,255,255,0))
                   counter = counter +1
         time.sleep(0.1)
-
-def test_generic(name, test_func):
-    print('Testing', name, '..')
-    success = test_func()
-    if success:
-        print(name, 'Test Done')
-    else:
-        print(name, 'Test Failed!')
 
 
 def test_sense_light():

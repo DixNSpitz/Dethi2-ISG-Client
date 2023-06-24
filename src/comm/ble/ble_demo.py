@@ -29,7 +29,7 @@ _ENV_SENSE_SERVICE = (
 _ADV_APPEARANCE_GENERIC_LIGHT_SOURCE = const(1984)
 
 
-class BleTechProbe:
+class BleTechProbe: # TODO change!
     def __init__(self, ble, name="smart-leaf-ble"):
         self.connected = False
         self._ble = ble
@@ -69,6 +69,16 @@ class BleTechProbe:
                 if indicate:
                     # Indicate connected centrals.
                     self._ble.gatts_indicate(conn_handle, self._handle)
+
+    def get_mac_address(self):
+        ble_mac = ''
+        for byte in self._ble.config('mac')[1]:
+            ble_mac += hex(byte).replace('0x', '').upper() + ':'
+
+        if ble_mac:
+            ble_mac = ble_mac[0: len(ble_mac)-1]
+
+        return ble_mac
 
     def _advertise(self, interval_us=500000):
         self._ble.gap_advertise(interval_us, adv_data=self._payload)
