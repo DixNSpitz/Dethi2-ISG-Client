@@ -38,6 +38,27 @@ def categorize_sensor_value(value, thresholds):
             return i + 1
     return len(thresholds) + 1
 
+
+'''
+
+# THIS IS THE SERVER SIDE JUST TO ILLLUSTRATE
+from sensors.temperatur.temperatur import SenseTemperature
+# Initialize the sensor at the beginning of script
+sense_temp = SenseTemperature(1, 0x44, 0x2C, [0x06])
+
+def notification_handler(sender, data):
+    global last_value
+    last_value = struct.unpack('<i', data)[0]
+    print('Received value:', last_value)
+
+    if last_value == 1:  # Start a game on receiving -1
+        start_random_game()
+    elif last_value == 2:  # Read temperature on receiving 0
+        cTemp, _, _ = sense_temp.read()
+        print(f"Current temperature: {cTemp}")
+
+'''
+
 def get_light_level():
     sense_light = light.SenseLight(Pin(14), Pin(32), i2c_bus_idx=0)
     value = sense_light.read()
@@ -50,6 +71,22 @@ def get_humidity_level():
     thresholds = [10, 20, 30, 40, 50, 60, 70] # adjust these thresholds
     return categorize_sensor_value(value_humidity, thresholds)
 
+def get_temperature_level():
+    try:
+        # Notify the server to send the temperature level
+        tp_ble.set_light_value(1, notify=True, indicate=False)
+        
+        # Add a delay to wait for the server's response
+        time.sleep(0.5)  # Adjust this delay according to your needs
+        
+        # Retrieve the temperature level from the server
+        temperature_level = tp_ble.get_light_value()
+        thresholds = [10, 15, 20, 25, 30, 35, 40] # adjust these thresholds
+        return categorize_sensor_value(temperature_level, thresholds)
+    except Exception as e:
+        print(f"Failed to get temperature level: {str(e)}")
+        return 4  # Return a default value in case of error
+
 def idle_state():
     sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
     neo = neostick.NeoStick(Pin(13))
@@ -61,10 +98,11 @@ def idle_state():
     green = (0,255,0,0)
     colors = [blue, yellow, green]
 
-    led_counts = [get_humidity_level(), get_light_level(), 4]
+    led_counts = [get_humidity_level(), get_light_level(), get_temperature_level()]
 
     touch_counter = 0
-    for i in range(150):
+    start_time = time.time()
+    while True:
         value = sense_touch.read()
         if value == touch.SenseTouch.SenseTouchValueEnum.SHORT:
             neo.clear()
@@ -79,6 +117,12 @@ def idle_state():
             # Call a random game from the server.
             # choose_random_game() 
             pass
+
+        # Check if 2 minutes have passed
+        if time.time() - start_time >= 120:  # 120 seconds = 2 minutes
+            led_counts = [get_humidity_level(), get_light_level(), get_temperature_level()]
+            start_time = time.time()  # Reset the start time
+
         time.sleep(0.1)
 
 def game_guess_waterlevel():
