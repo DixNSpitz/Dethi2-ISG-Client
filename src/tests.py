@@ -75,6 +75,10 @@ def idle_state():
             for j in range(led_counts[touch_counter]): # light up LEDs based on the current count
                 neo.set_rgbw(j, color)
             touch_counter = (touch_counter + 1) % 3
+        elif value == touch.SenseTouch.SenseTouchValueEnum.LONG:  # Check for long touch
+            # Call a random game from the server.
+            # choose_random_game() 
+            pass
         time.sleep(0.1)
 
 def game_guess_waterlevel():
