@@ -48,6 +48,7 @@ _ADV_APPEARANCE_GENERIC_LIGHT_SOURCE = const(1984)
 
 class BleSmartLeaf:
     def __init__(self, ble, callback_rep=None, callback_neo=None, name="smart-leaf-ble"):
+        self._log('Initializing')
         self.connected = False
         self._ble = ble
         self._ble.active(True)
@@ -81,21 +82,29 @@ class BleSmartLeaf:
             conn_handle, value_handle = data
             self._log('Central write received', '(handle: ' + str(conn_handle) + ')', '(value-handle: ' + str(value_handle) + ')')
             if value_handle == self._rep_handle:
-                upckd = struct.unpack('<i', self._ble.gatts_read(value_handle))[0]
-                self._log('Report value received:', upckd)
-                if self._callback_rep is not None:
-                    self._callback_rep(upckd)
+                try:
+                    upckd = struct.unpack('<i', self._ble.gatts_read(value_handle))[0]
+                    self._log('Report value received:', upckd)
+                    if self._callback_rep is not None:
+                        self._callback_rep(self, upckd)
+                except Exception as e:
+                    self._log('Exception occurred while trying to handle report event!')
+                    print(e)
             if value_handle == self._neo_handle:
-                upckd = struct.unpack('IHHH', self._ble.gatts_read(value_handle))
-                # First value are NEO-LED indexes e.g. 100000000 which means no LED is written to
-                # e.g. 111100000 which means first three LEDs are written to
-                # e.g. 211100000 which means first three LEDs are written to and other LED-values are not cleared
-                # Second, Third, Fourth values are unsigned RGB-shorts e.g. (255, 0, 0) => RED
-                # e.g. (255, 255, 255) => White
-                # e.g. (128, 128, 128) => 50% Grey, and so on
-                self._log('Neo value received:', upckd)
-                if self._callback_neo is not None:
-                    self._callback_neo(upckd)
+                try:
+                    upckd = struct.unpack('IHHH', self._ble.gatts_read(value_handle))
+                    # First value are NEO-LED indexes e.g. 100000000 which means no LED is written to
+                    # e.g. 111100000 which means first three LEDs are written to
+                    # e.g. 211100000 which means first three LEDs are written to and other LED-values are not cleared
+                    # Second, Third, Fourth values are unsigned RGB-shorts e.g. (255, 0, 0) => RED
+                    # e.g. (255, 255, 255) => White
+                    # e.g. (128, 128, 128) => 50% Grey, and so on
+                    self._log('Neo value received:', upckd)
+                    if self._callback_neo is not None:
+                        self._callback_neo(self, upckd)
+                except Exception as e:
+                    self._log('Exception occurred while trying to handle set-neo event!')
+                    print(e)
 
     def set_light_value(self, light_value, notify=False, indicate=False):
         self._log('Writing Luminosity value:', light_value)
@@ -137,6 +146,7 @@ class BleSmartLeaf:
         return ble_mac
 
     def _advertise(self, interval_us=500000):
+        self._log('Start advertising')
         self._ble.gap_advertise(interval_us, adv_data=self._payload)
 
     def _log(self, *values: object):
