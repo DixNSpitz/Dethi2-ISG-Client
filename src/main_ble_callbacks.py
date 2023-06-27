@@ -45,11 +45,16 @@ def report_callback_with_retries(ble_smart_leaf: BleSmartLeaf, value):
 
 
 def report_callback(ble_smart_leaf: BleSmartLeaf, value):
-    sense_light = light.SenseLight(Pin(14), Pin(32), i2c_bus_idx=0)
-    ble_smart_leaf.set_light_value(sense_light.read(), True)
-    time.sleep(1)
-    sense_humidity = humidity.SenseHumidity(Pin(15), Pin(33), i2c_bus_idx=1)
-    ble_smart_leaf.set_humidity_value(sense_humidity.read_moisture(), True)
+    if value == 0 or value == 1:
+        sense_light = light.SenseLight(Pin(14), Pin(32), i2c_bus_idx=0)
+        ble_smart_leaf.set_light_value(sense_light.read(), True)
+
+    if value == 0:
+        time.sleep(1)
+
+    if value == 0 or value == 2:
+        sense_humidity = humidity.SenseHumidity(Pin(15), Pin(33), i2c_bus_idx=1)
+        ble_smart_leaf.set_humidity_value(sense_humidity.read_moisture(), True)
 
 
 def set_neo_callback(ble_smart_leaf: BleSmartLeaf, values):

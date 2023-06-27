@@ -83,7 +83,7 @@ class BleSmartLeaf:
             self._log('Central write received', '(handle: ' + str(conn_handle) + ')', '(value-handle: ' + str(value_handle) + ')')
             if value_handle == self._rep_handle:
                 try:
-                    upckd = struct.unpack('<i', self._ble.gatts_read(value_handle))[0]
+                    upckd = struct.unpack('H', self._ble.gatts_read(value_handle))[0]
                     self._log('Report value received:', upckd)
                     if self._callback_rep is not None:
                         self._callback_rep(self, upckd)
