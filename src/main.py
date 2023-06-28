@@ -123,7 +123,7 @@ def test_sense_humidity():
 
 def test_sense_touch():
     try:
-        sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
+        sense_touch = touch.SenseTouch(Pin(12), touch_threshold=350)
         for i in range(100):
             value = sense_touch.read()
             if value == touch.SenseTouch.SenseTouchValueEnum.SHORT:
@@ -201,7 +201,7 @@ def get_temperature_level():
     return categorize_sensor_value(value_temp, thresholds)
 
 def idle_state():
-    sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
+    sense_touch = touch.SenseTouch(Pin(12), touch_threshold=350)
     neo = neostick.NeoStick(Pin(13))
     neo.clear()
     print(str(get_light_level()))
@@ -231,7 +231,7 @@ def idle_state():
         
         for j in range(led_counts[touch_counter]): # light up LEDs based on the current count
             neo.set_rgbw(j, color)
-        if((led_counts[touch_counter]<3 or led_counts[touch_counter]>6) and counterblink>10):
+        if((led_counts[touch_counter]<2 or led_counts[touch_counter]>7) and counterblink>10):
             neo.clear()
             counterblink = 0
                 
