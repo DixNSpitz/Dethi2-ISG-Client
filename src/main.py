@@ -56,7 +56,7 @@ def test_ble_comm(notify_lum=False, notify_hum=False, notify_bat=False, notify_t
             tp_ble.set_humidity_value(sense_humidity.read_moisture(), True)
 
         if notify_touch:
-            sense_touch = touch.SenseTouch(Pin(12), touch_threshold=150)
+            sense_touch = touch.SenseTouch(Pin(12), touch_threshold=350)
             for i in range(350):
                 value = sense_touch.read()
                 if value == touch.SenseTouch.SenseTouchValueEnum.SHORT:
